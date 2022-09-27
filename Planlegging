@@ -1,0 +1,26 @@
+LAGE KARTET OG SETTE DET OPP
+    Setup
+        -finne assets
+        -laste ned Tiled
+        -importere Tiled prosjekt inn i prosjektet her
+    
+    Flislegging for vann og landmasser
+    Plassere trær
+    Detaljer
+    Kollisjon og grenser
+    Forgrunn
+
+SPILLER OG KARTUTVIKLING
+    Importere og rendre kartet
+    Lage spilleren
+    Flytte spillerfiguren rundt på kartet ved tastaturtrykk
+    Spillerkollisjon
+    Animasjon
+
+KAMPSEKVENSER
+    Kampinitiering
+    Flytte fra åpent kart til inne i kamp
+    Kampbakgrunn
+    Kampanimasjoner
+    En form for angrepsliste
+    Helse og statuseffekter
