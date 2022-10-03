@@ -96,6 +96,9 @@ playerLeftImage.src = "./img/playerLeft.png";
 const playerRightImage = new Image();
 playerRightImage.src = "./img/playerRight.png";
 
+const pressFimg = new Image();
+pressFimg.src = "./img/pressFimg.png";
+
 class Sprite {
 	constructor({ position, velocity, image, frames = { max: 1 }, sprites }) {
 		this.position = position;
@@ -134,6 +137,14 @@ class Sprite {
 		}
 	}
 }
+
+const battlePopUp = new Sprite({
+	position: {
+		x: offset.x + 350,
+		y: offset.y + 100,
+	},
+	image: pressFimg,
+});
 
 const player = new Sprite({
 	position: {
@@ -181,6 +192,9 @@ const keys = {
 	d: {
 		pressed: false,
 	},
+	f: {
+		pressed: false,
+	},
 };
 
 const movables = [background, ...boundaries, ...interactiontiles, foreground];
@@ -204,6 +218,7 @@ function animate() {
 	});
 	player.draw();
 	foreground.draw();
+	interactTileF();
 	let moving = true;
 	player.moving = false;
 	if (keys.w.pressed && lastKey === "w") {
@@ -315,6 +330,26 @@ function animate() {
 
 animate();
 
+function interactTileF() {
+	let interactable = false;
+	for (let i = 0; i < interactiontiles.length; i++) {
+		const interaction = interactiontiles[i];
+		if (
+			rectangularCollision({
+				rectangle1: player,
+				rectangle2: interaction,
+			})
+		) {
+			console.log("du kan interacte her");
+			battlePopUp.draw();
+			interactable = true;
+			break;
+		} else {
+			interactable = false;
+		}
+	}
+}
+
 let lastKey = "";
 window.addEventListener("keydown", (e) => {
 	switch (e.key) {
@@ -334,6 +369,10 @@ window.addEventListener("keydown", (e) => {
 			keys.d.pressed = true;
 			lastKey = "d";
 			break;
+		case "f":
+			keys.f.pressed = true;
+			lastKey = "f";
+			break;
 	}
 });
 
@@ -350,6 +389,9 @@ window.addEventListener("keyup", (e) => {
 			break;
 		case "d":
 			keys.d.pressed = false;
+			break;
+		case "f":
+			keys.f.pressed = false;
 			break;
 	}
 });
