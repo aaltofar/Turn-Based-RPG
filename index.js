@@ -8,6 +8,11 @@ for (let i = 0; i < collisions.length; i += 70) {
 	collisionsMap.push(collisions.slice(i, 70 + i));
 }
 
+const interactionsMap = [];
+for (let i = 0; i < interactions.length; i += 70) {
+	interactionsMap.push(interactions.slice(i, 70 + i));
+}
+
 class Boundary {
 	static width = 80;
 	static height = 80;
@@ -23,6 +28,22 @@ class Boundary {
 	}
 }
 
+class interaction {
+	static width = 80;
+	static height = 80;
+	constructor({ position }) {
+		this.position = position;
+		this.width = 80;
+		this.height = 80;
+	}
+
+	draw() {
+		c.fillStyle = "rgba(0,255,0,1";
+		c.fillRect(this.position.x, this.position.y, this.width, this.height);
+	}
+}
+
+const interactiontiles = [];
 const boundaries = [];
 const offset = {
 	x: 0,
@@ -37,6 +58,20 @@ collisionsMap.forEach((row, i) => {
 					position: {
 						x: j * Boundary.width + offset.x,
 						y: i * Boundary.height + offset.y,
+					},
+				})
+			);
+	});
+});
+
+interactionsMap.forEach((row, i) => {
+	row.forEach((symbol, j) => {
+		if (symbol === 939)
+			interactiontiles.push(
+				new interaction({
+					position: {
+						x: j * interaction.width + offset.x,
+						y: i * interaction.height + offset.y,
 					},
 				})
 			);
@@ -148,7 +183,7 @@ const keys = {
 	},
 };
 
-const movables = [background, ...boundaries, foreground];
+const movables = [background, ...boundaries, ...interactiontiles, foreground];
 function rectangularCollision({ rectangle1, rectangle2 }) {
 	return (
 		rectangle1.position.x + player.width >= rectangle2.position.x &&
@@ -163,6 +198,9 @@ function animate() {
 	background.draw();
 	boundaries.forEach((boundary) => {
 		boundary.draw();
+	});
+	interactiontiles.forEach((interaction) => {
+		interaction.draw();
 	});
 	player.draw();
 	foreground.draw();
