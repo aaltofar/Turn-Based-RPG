@@ -38,7 +38,7 @@ class interaction {
 	}
 
 	draw() {
-		c.fillStyle = "rgba(0,255,0,1";
+		c.fillStyle = "rgba(0,255,0,0";
 		c.fillRect(this.position.x, this.position.y, this.width, this.height);
 	}
 }
@@ -99,6 +99,13 @@ playerRightImage.src = "./img/playerRight.png";
 const pressFimg = new Image();
 pressFimg.src = "./img/pressFimg.png";
 
+const musicIconpic = new Image();
+musicIconpic.src = "./img/musicIcon.png";
+musicIconpic.onclick = "muteAudio()";
+
+const battleBgImg = new Image();
+battleBgImg.src = "./img/battleBgOverworld.png";
+
 class Sprite {
 	constructor({ position, velocity, image, frames = { max: 1 }, sprites }) {
 		this.position = position;
@@ -113,7 +120,6 @@ class Sprite {
 		this.sprites = sprites;
 	}
 	draw() {
-		//c.drawImage(this.image, this.position.x, this.position.y)
 		c.drawImage(
 			this.image,
 			this.frames.val * this.width,
@@ -144,6 +150,22 @@ const battlePopUp = new Sprite({
 		y: offset.y + 100,
 	},
 	image: pressFimg,
+});
+
+const musicIcon = new Sprite({
+	position: {
+		x: offset.x + 950,
+		y: offset.y + 60,
+	},
+	image: musicIconpic,
+});
+
+const battleBackground = new Sprite({
+	position: {
+		x: 0,
+		y: 0,
+	},
+	image: battleBgImg,
 });
 
 const player = new Sprite({
@@ -207,8 +229,12 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 	);
 }
 
+const battleToggle = {
+	initiated: false,
+};
+
 function animate() {
-	window.requestAnimationFrame(animate);
+	const animationId = window.requestAnimationFrame(animate);
 	background.draw();
 	boundaries.forEach((boundary) => {
 		boundary.draw();
@@ -218,9 +244,16 @@ function animate() {
 	});
 	player.draw();
 	foreground.draw();
+	//musicIcon.draw();
 	interactTileF();
 	let moving = true;
 	player.moving = false;
+	if (battleToggle.initiated) {
+		window.cancelAnimationFrame(animationId);
+		battleIntroAudio.play();
+		return;
+	}
+
 	if (keys.w.pressed && lastKey === "w") {
 		player.moving = true;
 		player.image = player.sprites.up;
@@ -340,16 +373,50 @@ function interactTileF() {
 				rectangle2: interaction,
 			})
 		) {
-			console.log("du kan interacte her");
 			battlePopUp.draw();
 			interactable = true;
-			break;
-		} else {
-			interactable = false;
+			if (lastKey === "f") {
+				console.log("f was pressed");
+				lastKey = "";
+				battleToggle.initiated = true;
+				gsap.to("#overlappingDiv", {
+					opacity: 1,
+					repeat: 5,
+					yoyo: true,
+					duration: 0.4,
+					onComplete() {
+						gsap.to("#overlappingDiv", {
+							opacity: 1,
+							duration: 0.4,
+							onComplete() {
+								animateBattle();
+								gsap.to("#overlappingDiv", {
+									opacity: 0,
+									duration: 0.4,
+								});
+							},
+						});
+					},
+				});
+				return;
+			}
 		}
 	}
 }
 
+const battleIntroAudio = new Audio("./audio/BattleIntro.mp3");
+
+function animateBattle() {
+	window.requestAnimationFrame(animateBattle);
+	console.log("i battle");
+	battleBackground.draw();
+}
+
+//animateBattle();
+function muteAudio(el) {
+	battleIntroAudio.muted = true;
+	console.log("audio was muted");
+}
 let lastKey = "";
 window.addEventListener("keydown", (e) => {
 	switch (e.key) {
