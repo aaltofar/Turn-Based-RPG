@@ -162,8 +162,8 @@ class Sprite {
 
 const battlePopUp = new Sprite({
 	position: {
-		x: offset.x + 350,
-		y: offset.y + 100,
+		x: offset.x + 375,
+		y: offset.y + 240,
 	},
 	image: pressFimg,
 });
