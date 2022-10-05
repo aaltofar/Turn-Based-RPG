@@ -3,6 +3,9 @@ const c = canvas.getContext("2d");
 canvas.width = 1024;
 canvas.height = 576;
 
+const battleIntroAudio = new Audio("./audio/BattleIntro.mp3");
+const overworldAudio = new Audio("./audio/overworldMusic.mp3");
+
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i += 70) {
 	collisionsMap.push(collisions.slice(i, 70 + i));
@@ -99,6 +102,12 @@ playerRightImage.src = "./img/playerRight.png";
 const pressFimg = new Image();
 pressFimg.src = "./img/pressFimg.png";
 
+const enemyImage = new Image();
+enemyImage.src = "./img/bigBadEnemy.png";
+
+const playerBattleImage = new Image();
+playerBattleImage.src = "./img/playerBattleImage.png";
+
 const musicIconpic = new Image();
 musicIconpic.src = "./img/musicIcon.png";
 musicIconpic.onclick = "muteAudio()";
@@ -107,7 +116,14 @@ const battleBgImg = new Image();
 battleBgImg.src = "./img/battleBgOverworld.png";
 
 class Sprite {
-	constructor({ position, velocity, image, frames = { max: 1 }, sprites }) {
+	constructor({
+		position,
+		velocity,
+		image,
+		frames = { max: 1, hold: 20 },
+		sprites,
+		animate = false,
+	}) {
 		this.position = position;
 		this.image = image;
 		this.frames = { ...frames, val: 0, elapsed: 0 };
@@ -116,7 +132,7 @@ class Sprite {
 			this.width = this.image.width / this.frames.max;
 			this.height = this.image.height;
 		};
-		this.moving = false;
+		this.animate = animate;
 		this.sprites = sprites;
 	}
 	draw() {
@@ -132,12 +148,12 @@ class Sprite {
 			this.image.height
 		);
 
-		if (!this.moving) return;
+		if (!this.animate) return;
 		if (this.frames.max > 1) {
 			this.frames.elapsed++;
 		}
 
-		if (this.frames.elapsed % 20 === 0) {
+		if (this.frames.elapsed % this.frames.hold === 0) {
 			if (this.frames.val < this.frames.max - 1) this.frames.val++;
 			else this.frames.val = 0;
 		}
@@ -150,14 +166,6 @@ const battlePopUp = new Sprite({
 		y: offset.y + 100,
 	},
 	image: pressFimg,
-});
-
-const musicIcon = new Sprite({
-	position: {
-		x: offset.x + 950,
-		y: offset.y + 60,
-	},
-	image: musicIconpic,
 });
 
 const battleBackground = new Sprite({
@@ -176,6 +184,7 @@ const player = new Sprite({
 	image: playerDownImage,
 	frames: {
 		max: 4,
+		hold: 20,
 	},
 	sprites: {
 		up: playerUpImage,
@@ -183,6 +192,32 @@ const player = new Sprite({
 		left: playerLeftImage,
 		right: playerRightImage,
 	},
+});
+
+const enemy = new Sprite({
+	position: {
+		x: 700,
+		y: 260,
+	},
+	image: enemyImage,
+	frames: {
+		max: 4,
+		hold: 60,
+	},
+	animate: true,
+});
+
+const playerBattle = new Sprite({
+	position: {
+		x: 275,
+		y: 350,
+	},
+	image: playerBattleImage,
+	frames: {
+		max: 4,
+		hold: 60,
+	},
+	animate: true,
 });
 
 const background = new Sprite({
@@ -244,18 +279,17 @@ function animate() {
 	});
 	player.draw();
 	foreground.draw();
-	//musicIcon.draw();
 	interactTileF();
+	handleAudio();
 	let moving = true;
-	player.moving = false;
+	player.animate = false;
 	if (battleToggle.initiated) {
 		window.cancelAnimationFrame(animationId);
-		battleIntroAudio.play();
 		return;
 	}
 
 	if (keys.w.pressed && lastKey === "w") {
-		player.moving = true;
+		player.animate = true;
 		player.image = player.sprites.up;
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
@@ -281,7 +315,7 @@ function animate() {
 				movable.position.y += 2;
 			});
 	} else if (keys.a.pressed && lastKey === "a") {
-		player.moving = true;
+		player.animate = true;
 		player.image = player.sprites.left;
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
@@ -307,7 +341,7 @@ function animate() {
 				movable.position.x += 2;
 			});
 	} else if (keys.s.pressed && lastKey === "s") {
-		player.moving = true;
+		player.animate = true;
 		player.image = player.sprites.down;
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
@@ -333,7 +367,7 @@ function animate() {
 				movable.position.y -= 2;
 			});
 	} else if (keys.d.pressed && lastKey === "d") {
-		player.moving = true;
+		player.animate = true;
 		player.image = player.sprites.right;
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
@@ -361,8 +395,8 @@ function animate() {
 	}
 }
 
-animate();
-
+//animate();
+animateBattle();
 function interactTileF() {
 	let interactable = false;
 	for (let i = 0; i < interactiontiles.length; i++) {
@@ -404,19 +438,26 @@ function interactTileF() {
 	}
 }
 
-const battleIntroAudio = new Audio("./audio/BattleIntro.mp3");
-
 function animateBattle() {
+	battleToggle.initiated = true;
+	handleAudio();
 	window.requestAnimationFrame(animateBattle);
-	console.log("i battle");
 	battleBackground.draw();
+	enemy.draw();
+	playerBattle.draw();
 }
 
 //animateBattle();
-function muteAudio(el) {
-	battleIntroAudio.muted = true;
-	console.log("audio was muted");
+function handleAudio() {
+	if (battleToggle.initiated === true) {
+		overworldAudio.pause();
+		battleIntroAudio.play();
+	} else {
+		battleIntroAudio.pause();
+		overworldAudio.play();
+	}
 }
+
 let lastKey = "";
 window.addEventListener("keydown", (e) => {
 	switch (e.key) {

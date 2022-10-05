@@ -5,6 +5,12 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+			rel="stylesheet"
+		/>
 		<script
 			src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.2/gsap.min.js"
 			integrity="sha512-gsEItzcNkWxfxHjr4BaEZAd9YuRWYjxnj7c/yukcZ0/nWehUb5TjJNyyv1ApCU2DFH/qgw+stFZHPOKnoQnIuQ=="
@@ -15,9 +21,11 @@
 		<script src="data/interactions.js"></script>
 		<!-- <script defer src="classes.js"></script> -->
 		<script defer src="index.js"></script>
-	</head>
-	<body>
+
 		<style>
+			* {
+				font-family: "Press Start 2P", cursive;
+			}
 			body {
 				background-color: black;
 				display: flex;
@@ -25,6 +33,21 @@
 				padding: 0;
 				margin: 0;
 			}
+
+			h1 {
+				margin: 0;
+			}
+
+			button {
+				border: 0;
+				cursor: pointer;
+				font-size: 16px;
+			}
+
+			button:hover {
+				background-color: #ddd;
+			}
+
 			#overlayimg {
 				background-image: url(img/overlay2.png);
 				width: 1920px;
@@ -32,10 +55,12 @@
 				position: absolute;
 			}
 			#container {
-				margin-top: 7.3%;
+				margin-top: 205px;
 				margin-left: 1%;
 			}
 		</style>
+	</head>
+	<body>
 		<div id="overlayimg"></div>
 		<div id="container" style="display: inline-block; position: relative">
 			<div
@@ -49,9 +74,110 @@
 					left: 0;
 					opacity: 0;
 					pointer-events: none;
+					z-index: 1;
 				"
 			></div>
+			<div
+				id="enemyHealth"
+				style="
+					background-color: white;
+					width: 200px;
+					position: absolute;
+					top: 50px;
+					left: 50px;
+					border: 5px solid black;
+					padding: 12px;
+				"
+			>
+				<h1 style="font-size: 16px">Old man Marius</h1>
+				<div style="position: relative">
+					<div
+						style="height: 5px; background-color: #ccc; margin-top: 10px"
+					></div>
+					<div
+						style="
+							height: 5px;
+							background-color: green;
+
+							position: absolute;
+							top: 0;
+							left: 0;
+							right: 0;
+						"
+					></div>
+				</div>
+			</div>
+			<div
+				id="playerHealth"
+				style="
+					background-color: white;
+					width: 200px;
+					position: absolute;
+					top: 330px;
+					right: 50px;
+					border: 5px solid black;
+					padding: 12px;
+				"
+			>
+				<h1 style="font-size: 16px">Player</h1>
+				<div style="position: relative">
+					<div
+						style="height: 5px; background-color: #ccc; margin-top: 10px"
+					></div>
+					<div
+						style="
+							height: 5px;
+							background-color: green;
+
+							position: absolute;
+							top: 0;
+							left: 0;
+							right: 0;
+						"
+					></div>
+				</div>
+			</div>
 			<canvas></canvas>
+
+			<div
+				id="attackContainer"
+				style="
+					background-color: white;
+					height: 140px;
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					right: 0;
+					border-top: 5px black solid;
+					display: flex;
+				"
+			>
+				<div
+					id="attacks"
+					style="
+						width: 66.66%;
+						display: grid;
+						grid-template-columns: repeat(2, 1fr);
+					"
+				>
+					<button>Falcon Punch</button>
+					<button>Ultra Big Bang Kamehameha</button>
+					<button>Limitless</button>
+					<button>Crimson Moon</button>
+				</div>
+				<div
+					id="types"
+					style="
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 33.33%;
+						border-left: 5px solid black;
+					"
+				>
+					<h1 style="font-size: 16px">Attack Type</h1>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
