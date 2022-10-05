@@ -44,6 +44,10 @@
 				font-size: 16px;
 			}
 
+			.battleUI {
+				opacity: 0;
+			}
+
 			button:hover {
 				background-color: #ddd;
 			}
@@ -78,6 +82,7 @@
 				"
 			></div>
 			<div
+				class="battleUI"
 				id="enemyHealth"
 				style="
 					background-color: white;
@@ -89,12 +94,13 @@
 					padding: 12px;
 				"
 			>
-				<h1 style="font-size: 16px">Old man Marius</h1>
-				<div style="position: relative">
+				<h1 class="battleUI" style="font-size: 16px">Old man Marius</h1>
+				<div class="battleUI" style="position: relative">
 					<div
 						style="height: 5px; background-color: #ccc; margin-top: 10px"
 					></div>
 					<div
+						class="battleUI"
 						style="
 							height: 5px;
 							background-color: green;
@@ -108,6 +114,7 @@
 				</div>
 			</div>
 			<div
+				class="battleUI"
 				id="playerHealth"
 				style="
 					background-color: white;
@@ -119,12 +126,14 @@
 					padding: 12px;
 				"
 			>
-				<h1 style="font-size: 16px">Player</h1>
-				<div style="position: relative">
+				<h1 class="battleUI" style="font-size: 16px">Player</h1>
+				<div class="battleUI" style="position: relative">
 					<div
+						class="battleUI"
 						style="height: 5px; background-color: #ccc; margin-top: 10px"
 					></div>
 					<div
+						class="battleUI"
 						style="
 							height: 5px;
 							background-color: green;
@@ -140,6 +149,7 @@
 			<canvas></canvas>
 
 			<div
+				class="battleUI"
 				id="attackContainer"
 				style="
 					background-color: white;
@@ -153,6 +163,7 @@
 				"
 			>
 				<div
+					class="battleUI"
 					id="attacks"
 					style="
 						width: 66.66%;
@@ -166,6 +177,7 @@
 					<button>Crimson Moon</button>
 				</div>
 				<div
+					class="battleUI"
 					id="types"
 					style="
 						display: flex;
@@ -175,7 +187,7 @@
 						border-left: 5px solid black;
 					"
 				>
-					<h1 style="font-size: 16px">Attack Type</h1>
+					<h1 class="battleUI" style="font-size: 16px">Attack Type</h1>
 				</div>
 			</div>
 		</div>

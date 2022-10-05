@@ -395,8 +395,8 @@ function animate() {
 	}
 }
 
-//animate();
-animateBattle();
+animate();
+//animateBattle();
 function interactTileF() {
 	let interactable = false;
 	for (let i = 0; i < interactiontiles.length; i++) {
@@ -445,9 +445,11 @@ function animateBattle() {
 	battleBackground.draw();
 	enemy.draw();
 	playerBattle.draw();
+	gsap.to(".battleUI", {
+		opacity: 1,
+	});
 }
 
-//animateBattle();
 function handleAudio() {
 	if (battleToggle.initiated === true) {
 		overworldAudio.pause();
