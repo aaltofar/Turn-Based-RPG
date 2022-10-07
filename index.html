@@ -17,9 +17,10 @@
 			crossorigin="anonymous"
 			referrerpolicy="no-referrer"
 		></script>
+		<!-- <script src="classes.js"></script> -->
 		<script src="data/collisions.js"></script>
 		<script src="data/interactions.js"></script>
-		<!-- <script defer src="classes.js"></script> -->
+		<script src="data/attacks.js"></script>
 		<script defer src="index.js"></script>
 
 		<style>
@@ -62,6 +63,9 @@
 				margin-top: 205px;
 				margin-left: 1%;
 			}
+			#crimsonMoonAnimPic {
+				background-image: url("./img/crimsonMoonFinish.png");
+			}
 		</style>
 	</head>
 	<body>
@@ -79,6 +83,19 @@
 					opacity: 0;
 					pointer-events: none;
 					z-index: 1;
+				"
+			></div>
+			<div
+				id="crimsonMoonAnimPic"
+				style="
+					position: absolute;
+					top: 0;
+					right: 0;
+					bottom: 0;
+					left: 0;
+					opacity: 0;
+					pointer-events: none;
+					z-index: 2;
 				"
 			></div>
 			<div
@@ -100,11 +117,11 @@
 						style="height: 5px; background-color: #ccc; margin-top: 10px"
 					></div>
 					<div
+						id="enemyHealthBar"
 						class="battleUI"
 						style="
 							height: 5px;
 							background-color: green;
-
 							position: absolute;
 							top: 0;
 							left: 0;
@@ -133,11 +150,11 @@
 						style="height: 5px; background-color: #ccc; margin-top: 10px"
 					></div>
 					<div
+						id="playerHealthBar"
 						class="battleUI"
 						style="
 							height: 5px;
 							background-color: green;
-
 							position: absolute;
 							top: 0;
 							left: 0;
@@ -171,10 +188,10 @@
 						grid-template-columns: repeat(2, 1fr);
 					"
 				>
-					<button>Falcon Punch</button>
-					<button>Ultra Big Bang Kamehameha</button>
+					<button>FalconPunch</button>
+					<button>UltraBigBangKamehameha</button>
 					<button>Limitless</button>
-					<button>Crimson Moon</button>
+					<button>CrimsonMoon</button>
 				</div>
 				<div
 					class="battleUI"

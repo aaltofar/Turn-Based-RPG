@@ -5,6 +5,10 @@ canvas.height = 576;
 
 const battleIntroAudio = new Audio("./audio/BattleIntro.mp3");
 const overworldAudio = new Audio("./audio/overworldMusic.mp3");
+const falconPunchAudio = new Audio("./audio/falconPunchAudio.mp3");
+const LimitlessAudio = new Audio("./audio/overworldMusic.mp3");
+const kamehamehaAudio = new Audio("./audio/overworldMusic.mp3");
+const crimsonMoonAudio = new Audio("./audio/crimsonMoonAudio.mp3");
 
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i += 70) {
@@ -108,10 +112,6 @@ enemyImage.src = "./img/bigBadEnemy.png";
 const playerBattleImage = new Image();
 playerBattleImage.src = "./img/playerBattleImage.png";
 
-const musicIconpic = new Image();
-musicIconpic.src = "./img/musicIcon.png";
-musicIconpic.onclick = "muteAudio()";
-
 const battleBgImg = new Image();
 battleBgImg.src = "./img/battleBgOverworld.png";
 
@@ -120,9 +120,12 @@ class Sprite {
 		position,
 		velocity,
 		image,
+		opacity,
 		frames = { max: 1, hold: 20 },
 		sprites,
 		animate = false,
+		isEnemy = false,
+		rotation = 0,
 	}) {
 		this.position = position;
 		this.image = image;
@@ -134,8 +137,15 @@ class Sprite {
 		};
 		this.animate = animate;
 		this.sprites = sprites;
+		this.opacity = opacity;
+		this.health = 100;
+		this.isEnemy = isEnemy;
+		this.rotation = rotation;
 	}
 	draw() {
+		c.save();
+		c.rotate(this.rotation);
+		c.globalAlpha = this.opacity;
 		c.drawImage(
 			this.image,
 			this.frames.val * this.width,
@@ -147,6 +157,7 @@ class Sprite {
 			this.image.width / this.frames.max,
 			this.image.height
 		);
+		c.restore();
 
 		if (!this.animate) return;
 		if (this.frames.max > 1) {
@@ -156,6 +167,229 @@ class Sprite {
 		if (this.frames.elapsed % this.frames.hold === 0) {
 			if (this.frames.val < this.frames.max - 1) this.frames.val++;
 			else this.frames.val = 0;
+		}
+	}
+
+	attack({ attack, recipient, renderedSprites }) {
+		const tl = gsap.timeline();
+		this.health -= attack.damage;
+		let movementDistance = 20;
+		if (this.isEnemy) movementDistance = -20;
+		let healthBar = "#enemyHealthBar";
+		let crimsonMoonEnd = "#crimsonMoonAnimPic";
+		if (this.isEnemy) healthBar = "#playerHealthBar";
+		switch (attack.name) {
+			case "Falcon Punch":
+				const falconPunchImg = new Image();
+				falconPunchImg.src = "./img/falconPunchAnim.png";
+				const falconPunchAttack = new Sprite({
+					position: {
+						x: this.position.x + 50,
+						y: this.position.y,
+					},
+					image: falconPunchImg,
+					frames: {
+						max: 6,
+						hold: 15,
+					},
+					animate: true,
+				});
+
+				renderedSprites.splice(1, 0, falconPunchAttack);
+				falconPunchAudio.play();
+				tl.to(this.position, {
+					x: this.position.x - movementDistance,
+				})
+					.to(this.position, {
+						x: this.position.x + movementDistance * 2,
+						duration: 0.1,
+						onComplete: () => {
+							gsap.to(healthBar, {
+								width: this.health + "%",
+							});
+							gsap.to(falconPunchAttack.position, {
+								x: recipient.position.x,
+								y: recipient.position.y + 25,
+							});
+							gsap.to(recipient.position, {
+								x: recipient.position.x + 10,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+							gsap.to(recipient, {
+								opacity: 0,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+						},
+					})
+					.to(this.position, {
+						x: this.position.x,
+						onComplete: () => {
+							renderedSprites.splice(1, 1);
+						},
+					});
+
+				break;
+			case "Ultra Big Bang Kamehameha":
+				tl.to(this.position, {
+					x: this.position.x - movementDistance,
+				})
+					.to(this.position, {
+						x: this.position.x + movementDistance * 2,
+						duration: 0.1,
+						onComplete: () => {
+							gsap.to(healthBar, {
+								width: this.health + "%",
+							});
+							gsap.to(recipient.position, {
+								x: recipient.position.x + 10,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+							gsap.to(recipient, {
+								opacity: 0,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+						},
+					})
+					.to(this.position, {
+						x: this.position.x,
+					});
+				break;
+			case "Limitless":
+				tl.to(this.position, {
+					x: this.position.x - movementDistance,
+				})
+					.to(this.position, {
+						x: this.position.x + movementDistance * 2,
+						duration: 0.1,
+						onComplete: () => {
+							gsap.to(healthBar, {
+								width: this.health + "%",
+							});
+							gsap.to(recipient.position, {
+								x: recipient.position.x + 10,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+							gsap.to(recipient, {
+								opacity: 0,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+						},
+					})
+					.to(this.position, {
+						x: this.position.x,
+					});
+				break;
+			case "Crimson Moon":
+				const crimsonMoonImage = new Image();
+				crimsonMoonImage.src = "./img/crimsonMoonMid.png";
+
+				const crimsoonMoonAttack = new Sprite({
+					position: {
+						x: 0,
+						y: 0,
+					},
+					image: crimsonMoonImage,
+					frames: {
+						max: 6,
+						hold: 30,
+					},
+					animate: true,
+					opacity: 0,
+				});
+
+				renderedSprites.splice(1, 0, crimsoonMoonAttack);
+				crimsonMoonAudio.play();
+				tl.to(this.position, {
+					x: this.position.x - 250,
+				})
+					.to(this.position, {
+						x: recipient.position.x,
+						y: recipient.position.y,
+						duration: 0.1,
+						onComplete: () => {
+							gsap.to(healthBar, {
+								width: this.health + "%",
+							});
+							gsap.to(crimsoonMoonAttack.position, {
+								x: 0,
+								y: 0,
+							});
+							gsap.to(crimsoonMoonAttack, {
+								opacity: 1,
+							});
+							gsap.to(this, {
+								opacity: 0,
+							});
+						},
+					})
+					.to(crimsoonMoonAttack, {
+						opacity: 1,
+					})
+					.to(crimsoonMoonAttack, {
+						opacity: 1,
+						onComplete: () => {
+							gsap.to(crimsonMoonEnd, {
+								opacity: 1,
+							});
+							gsap.to(crimsonMoonEnd, {
+								opacity: 0,
+								delay: 4,
+							});
+							gsap.to(crimsoonMoonAttack, {
+								opacity: 0,
+							});
+							gsap.to(this, {
+								delay: 1,
+								opacity: 1,
+							});
+							gsap.to(this.position, {
+								x: 275,
+								y: 350,
+							});
+						},
+					});
+				break;
+			case "Tackle":
+				tl.to(this.position, {
+					x: this.position.x - movementDistance,
+				})
+					.to(this.position, {
+						x: this.position.x + movementDistance * 2,
+						duration: 0.1,
+						onComplete: () => {
+							gsap.to(healthBar, {
+								width: this.health + "%",
+							});
+							gsap.to(recipient.position, {
+								x: recipient.position.x + 10,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+							gsap.to(recipient, {
+								opacity: 0,
+								yoyo: true,
+								repeat: 5,
+								duration: 0.08,
+							});
+						},
+					})
+					.to(this.position, {
+						x: this.position.x,
+					});
+				break;
 		}
 	}
 }
@@ -205,6 +439,8 @@ const enemy = new Sprite({
 		hold: 60,
 	},
 	animate: true,
+	isEnemy: true,
+	opacity: 1,
 });
 
 const playerBattle = new Sprite({
@@ -219,7 +455,7 @@ const playerBattle = new Sprite({
 	},
 	animate: true,
 });
-
+const renderedSprites = [enemy, playerBattle];
 const background = new Sprite({
 	position: {
 		x: offset.x,
@@ -395,8 +631,8 @@ function animate() {
 	}
 }
 
-animate();
-//animateBattle();
+//animate();
+animateBattle();
 function interactTileF() {
 	let interactable = false;
 	for (let i = 0; i < interactiontiles.length; i++) {
@@ -440,15 +676,27 @@ function interactTileF() {
 
 function animateBattle() {
 	battleToggle.initiated = true;
-	handleAudio();
+	//handleAudio();
 	window.requestAnimationFrame(animateBattle);
 	battleBackground.draw();
-	enemy.draw();
-	playerBattle.draw();
 	gsap.to(".battleUI", {
 		opacity: 1,
 	});
+	renderedSprites.forEach((sprite) => {
+		sprite.draw();
+	});
 }
+
+document.querySelectorAll("button").forEach((button) => {
+	button.addEventListener("click", (e) => {
+		const selectedAttack = attacks[e.currentTarget.innerHTML];
+		playerBattle.attack({
+			attack: selectedAttack,
+			recipient: enemy,
+			renderedSprites,
+		});
+	});
+});
 
 function handleAudio() {
 	if (battleToggle.initiated === true) {
