@@ -3,22 +3,62 @@ const c = canvas.getContext("2d");
 canvas.width = 1024;
 canvas.height = 576;
 
+document.querySelector("#battleUiContainer").style.display = "none";
+
+let battleAnimationId;
+let animationId;
+let queue = [];
 const battleIntroAudio = new Audio("./audio/BattleIntro.mp3");
 const overworldAudio = new Audio("./audio/overworldMusic.mp3");
 const falconPunchAudio = new Audio("./audio/falconPunchAudio.mp3");
 const LimitlessAudio = new Audio("./audio/overworldMusic.mp3");
-const kamehamehaAudio = new Audio("./audio/overworldMusic.mp3");
+const kamehamehaAudio = new Audio("./audio/kamehamehaAudio.mp3");
 const crimsonMoonAudio = new Audio("./audio/crimsonMoonAudio.mp3");
 
+const interactiontiles = [];
+const boundaries = [];
+const offset = {
+	x: 0,
+	y: -50,
+};
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i += 70) {
 	collisionsMap.push(collisions.slice(i, 70 + i));
 }
-
 const interactionsMap = [];
 for (let i = 0; i < interactions.length; i += 70) {
 	interactionsMap.push(interactions.slice(i, 70 + i));
 }
+
+const image = new Image();
+image.src = "./img/overworld.png";
+
+const foregroundImage = new Image();
+foregroundImage.src = "./img/overworldForeground.png";
+
+const playerDownImage = new Image();
+playerDownImage.src = "./img/playerDown.png";
+
+const playerUpImage = new Image();
+playerUpImage.src = "./img/playerUp.png";
+
+const playerLeftImage = new Image();
+playerLeftImage.src = "./img/playerLeft.png";
+
+const playerRightImage = new Image();
+playerRightImage.src = "./img/playerRight.png";
+
+const pressFimg = new Image();
+pressFimg.src = "./img/pressFimg.png";
+
+// const enemyImage = new Image();
+// enemyImage.src = "./img/bigBadEnemy.png";
+
+// const playerBattleImage = new Image();
+// playerBattleImage.src = "./img/playerBattleImage.png";
+
+const battleBgImg = new Image();
+battleBgImg.src = "./img/battleBgOverworld.png";
 
 class Boundary {
 	static width = 80;
@@ -50,13 +90,6 @@ class interaction {
 	}
 }
 
-const interactiontiles = [];
-const boundaries = [];
-const offset = {
-	x: 0,
-	y: -50,
-};
-
 collisionsMap.forEach((row, i) => {
 	row.forEach((symbol, j) => {
 		if (symbol === 734)
@@ -85,36 +118,6 @@ interactionsMap.forEach((row, i) => {
 	});
 });
 
-const image = new Image();
-image.src = "./img/overworld.png";
-
-const foregroundImage = new Image();
-foregroundImage.src = "./img/overworldForeground.png";
-
-const playerDownImage = new Image();
-playerDownImage.src = "./img/playerDown.png";
-
-const playerUpImage = new Image();
-playerUpImage.src = "./img/playerUp.png";
-
-const playerLeftImage = new Image();
-playerLeftImage.src = "./img/playerLeft.png";
-
-const playerRightImage = new Image();
-playerRightImage.src = "./img/playerRight.png";
-
-const pressFimg = new Image();
-pressFimg.src = "./img/pressFimg.png";
-
-const enemyImage = new Image();
-enemyImage.src = "./img/bigBadEnemy.png";
-
-const playerBattleImage = new Image();
-playerBattleImage.src = "./img/playerBattleImage.png";
-
-const battleBgImg = new Image();
-battleBgImg.src = "./img/battleBgOverworld.png";
-
 class Sprite {
 	constructor({
 		position,
@@ -126,21 +129,33 @@ class Sprite {
 		animate = false,
 		isEnemy = false,
 		rotation = 0,
+		name,
 	}) {
 		this.position = position;
-		this.image = image;
+		this.image = new Image();
 		this.frames = { ...frames, val: 0, elapsed: 0 };
 
 		this.image.onload = () => {
 			this.width = this.image.width / this.frames.max;
 			this.height = this.image.height;
 		};
+		this.image.src = image.src;
 		this.animate = animate;
 		this.sprites = sprites;
 		this.opacity = opacity;
 		this.health = 100;
 		this.isEnemy = isEnemy;
 		this.rotation = rotation;
+		this.name = name;
+	}
+	faint() {
+		document.querySelector("#dialogBox").innerHTML = this.name + " fainted! ";
+		gsap.to(this.position, {
+			y: this.position.y + 20,
+		});
+		gsap.to(this, {
+			opacity: 0,
+		});
 	}
 	draw() {
 		c.save();
@@ -171,12 +186,16 @@ class Sprite {
 	}
 
 	attack({ attack, recipient, renderedSprites }) {
+		document.querySelector("#dialogBox").style.display = "block";
+		document.querySelector("#dialogBox").innerHTML =
+			this.name + " used " + attack.name;
 		const tl = gsap.timeline();
-		this.health -= attack.damage;
+		recipient.health -= attack.damage;
 		let movementDistance = 20;
 		if (this.isEnemy) movementDistance = -20;
 		let healthBar = "#enemyHealthBar";
 		let crimsonMoonEnd = "#crimsonMoonAnimPic";
+		let kamehamehaEnd = "#kamehamehaEndPic";
 		if (this.isEnemy) healthBar = "#playerHealthBar";
 		switch (attack.name) {
 			case "Falcon Punch":
@@ -205,7 +224,7 @@ class Sprite {
 						duration: 0.1,
 						onComplete: () => {
 							gsap.to(healthBar, {
-								width: this.health + "%",
+								width: recipient.health + "%",
 							});
 							gsap.to(falconPunchAttack.position, {
 								x: recipient.position.x,
@@ -234,33 +253,58 @@ class Sprite {
 
 				break;
 			case "Ultra Big Bang Kamehameha":
+				const kamehamehaImg = new Image();
+				kamehamehaImg.src = "./img/kamehamehaImg.png";
+
+				const kamehamehaAttack = new Sprite({
+					position: {
+						x: 0,
+						y: 0,
+					},
+					image: kamehamehaImg,
+					frames: {
+						max: 12,
+						hold: 20,
+					},
+					animate: true,
+					opacity: 1,
+				});
+				kamehamehaAudio.play();
 				tl.to(this.position, {
-					x: this.position.x - movementDistance,
-				})
-					.to(this.position, {
-						x: this.position.x + movementDistance * 2,
-						duration: 0.1,
-						onComplete: () => {
-							gsap.to(healthBar, {
-								width: this.health + "%",
-							});
-							gsap.to(recipient.position, {
-								x: recipient.position.x + 10,
-								yoyo: true,
-								repeat: 5,
-								duration: 0.08,
-							});
-							gsap.to(recipient, {
-								opacity: 0,
-								yoyo: true,
-								repeat: 5,
-								duration: 0.08,
-							});
-						},
-					})
-					.to(this.position, {
-						x: this.position.x,
-					});
+					y: this.position.y - 125,
+					duration: 0.1,
+					onComplete: () => {
+						this.opacity = 0;
+						enemy.opacity = 0;
+						renderedSprites.splice(1, 0, kamehamehaAttack);
+					},
+				});
+				tl.to(kamehamehaAttack, {
+					delay: 2.5,
+					onComplete: () => {
+						gsap.to(kamehamehaEnd, {
+							opacity: 1,
+						});
+						renderedSprites.splice(1, 1);
+						gsap.to(this.position, {
+							y: this.position.y + 125,
+						});
+					},
+				});
+				tl.to(kamehamehaAttack, {
+					opacity: 0,
+				});
+				tl.to(kamehamehaEnd, {
+					delay: 2,
+					opacity: 0,
+					onComplete: () => {
+						this.opacity = 1;
+						enemy.opacity = 1;
+						gsap.to(healthBar, {
+							width: recipient.health + "%",
+						});
+					},
+				});
 				break;
 			case "Limitless":
 				tl.to(this.position, {
@@ -271,7 +315,7 @@ class Sprite {
 						duration: 0.1,
 						onComplete: () => {
 							gsap.to(healthBar, {
-								width: this.health + "%",
+								width: recipient.health + "%",
 							});
 							gsap.to(recipient.position, {
 								x: recipient.position.x + 10,
@@ -303,7 +347,7 @@ class Sprite {
 					image: crimsonMoonImage,
 					frames: {
 						max: 6,
-						hold: 30,
+						hold: 10,
 					},
 					animate: true,
 					opacity: 0,
@@ -320,7 +364,7 @@ class Sprite {
 						duration: 0.1,
 						onComplete: () => {
 							gsap.to(healthBar, {
-								width: this.health + "%",
+								width: recipient.health + "%",
 							});
 							gsap.to(crimsoonMoonAttack.position, {
 								x: 0,
@@ -354,12 +398,14 @@ class Sprite {
 								delay: 1,
 								opacity: 1,
 							});
+							renderedSprites.splice(1, 1);
 							gsap.to(this.position, {
 								x: 275,
 								y: 350,
 							});
 						},
 					});
+
 				break;
 			case "Tackle":
 				tl.to(this.position, {
@@ -370,7 +416,7 @@ class Sprite {
 						duration: 0.1,
 						onComplete: () => {
 							gsap.to(healthBar, {
-								width: this.health + "%",
+								width: recipient.health + "%",
 							});
 							gsap.to(recipient.position, {
 								x: recipient.position.x + 10,
@@ -428,34 +474,41 @@ const player = new Sprite({
 	},
 });
 
-const enemy = new Sprite({
+let enemy = new Sprite({
 	position: {
 		x: 700,
 		y: 260,
 	},
-	image: enemyImage,
+	image: {
+		src: "./img/bigBadEnemy.png",
+	},
 	frames: {
 		max: 4,
 		hold: 60,
 	},
+	name: "Old man Marius",
 	animate: true,
 	isEnemy: true,
 	opacity: 1,
 });
 
-const playerBattle = new Sprite({
+let playerBattle = new Sprite({
 	position: {
 		x: 275,
 		y: 350,
 	},
-	image: playerBattleImage,
+	image: {
+		src: "./img/playerBattleImage.png",
+	},
 	frames: {
 		max: 4,
 		hold: 60,
 	},
+	name: "You",
 	animate: true,
+	opacity: 1,
 });
-const renderedSprites = [enemy, playerBattle];
+let renderedSprites = [enemy, playerBattle];
 const background = new Sprite({
 	position: {
 		x: offset.x,
@@ -500,12 +553,12 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 	);
 }
 
-const battleToggle = {
+let battleToggle = {
 	initiated: false,
 };
 
 function animate() {
-	const animationId = window.requestAnimationFrame(animate);
+	animationId = window.requestAnimationFrame(animate);
 	background.draw();
 	boundaries.forEach((boundary) => {
 		boundary.draw();
@@ -513,16 +566,17 @@ function animate() {
 	interactiontiles.forEach((interaction) => {
 		interaction.draw();
 	});
-	player.draw();
-	foreground.draw();
-	interactTileF();
-	handleAudio();
-	let moving = true;
-	player.animate = false;
 	if (battleToggle.initiated) {
 		window.cancelAnimationFrame(animationId);
 		return;
 	}
+	player.draw();
+	foreground.draw();
+	handleAudio(battleIntroAudio, overworldAudio);
+	interactTileF();
+	let moving = true;
+	player.animate = false;
+	//console.log("animationframe: " + animationId);
 
 	if (keys.w.pressed && lastKey === "w") {
 		player.animate = true;
@@ -631,8 +685,8 @@ function animate() {
 	}
 }
 
-//animate();
-animateBattle();
+animate();
+//animateBattle();
 function interactTileF() {
 	let interactable = false;
 	for (let i = 0; i < interactiontiles.length; i++) {
@@ -646,9 +700,11 @@ function interactTileF() {
 			battlePopUp.draw();
 			interactable = true;
 			if (lastKey === "f") {
-				console.log("f was pressed");
 				lastKey = "";
 				battleToggle.initiated = true;
+				window.cancelAnimationFrame(animationId);
+
+				handleAudio(battleIntroAudio, overworldAudio);
 				gsap.to("#overlappingDiv", {
 					opacity: 1,
 					repeat: 5,
@@ -659,6 +715,9 @@ function interactTileF() {
 							opacity: 1,
 							duration: 0.4,
 							onComplete() {
+								document.querySelector("#battleUiContainer").style.display =
+									"block";
+								initBattle();
 								animateBattle();
 								gsap.to("#overlappingDiv", {
 									opacity: 0,
@@ -674,13 +733,58 @@ function interactTileF() {
 	}
 }
 
+function initBattle() {
+	queue = [];
+
+	document.querySelector("#battleUiContainer").style.display = "block";
+	document.querySelector("#enemyHealthBar").style.width = "100%";
+	document.querySelector("#playerHealthBar").style.width = "100%";
+	document.querySelector("#dialogBox").style.display = "none";
+	enemy = new Sprite({
+		position: {
+			x: 700,
+			y: 260,
+		},
+		image: {
+			src: "./img/bigBadEnemy.png",
+		},
+		frames: {
+			max: 4,
+			hold: 60,
+		},
+		name: "Old man Marius",
+		animate: true,
+		isEnemy: true,
+		opacity: 1,
+	});
+
+	playerBattle = new Sprite({
+		position: {
+			x: 275,
+			y: 350,
+		},
+		image: {
+			src: "./img/playerBattleImage.png",
+		},
+		frames: {
+			max: 4,
+			hold: 60,
+		},
+		name: "You",
+		animate: true,
+		opacity: 1,
+	});
+	renderedSprites = [enemy, playerBattle];
+}
+
 function animateBattle() {
-	battleToggle.initiated = true;
-	//handleAudio();
-	window.requestAnimationFrame(animateBattle);
+	battleAnimationId = window.requestAnimationFrame(animateBattle);
+	//window.requestAnimationFrame(animateBattle);
 	battleBackground.draw();
+
 	gsap.to(".battleUI", {
 		opacity: 1,
+		duration: 1,
 	});
 	renderedSprites.forEach((sprite) => {
 		sprite.draw();
@@ -695,16 +799,58 @@ document.querySelectorAll("button").forEach((button) => {
 			recipient: enemy,
 			renderedSprites,
 		});
+		if (enemy.health <= 0) {
+			queue.push(() => {
+				enemy.faint();
+			});
+			queue.push(() => {
+				gsap.to("#overlappingDiv", {
+					opacity: 1,
+					duration: 0.4,
+					onComplete: () => {
+						window.cancelAnimationFrame(battleAnimationId);
+						battleToggle.initiated = false;
+						document.querySelector("#battleUiContainer").style.display = "none";
+						gsap.to("#overlappingDiv", {
+							opacity: 0,
+						});
+						animate();
+						queue = [];
+					},
+				});
+			});
+		}
+		queue.push(() => {
+			enemy.attack({
+				attack: attacks.Tackle,
+				recipient: playerBattle,
+				renderedSprites,
+			});
+		});
+	});
+
+	button.addEventListener("mouseenter", (e) => {
+		const selectedAttack = attacks[e.currentTarget.innerHTML];
+		document.querySelector("#attackTypeBox").innerHTML = selectedAttack.type;
+		document.querySelector("#attackTypeBox").style.color = selectedAttack.color;
 	});
 });
 
-function handleAudio() {
+document.querySelector("#dialogBox").addEventListener("click", (e) => {
+	if (queue.length > 0) {
+		queue[0]();
+		queue.shift();
+	} else e.currentTarget.style.display = "none";
+});
+
+function handleAudio(battle, overworld) {
 	if (battleToggle.initiated === true) {
-		overworldAudio.pause();
-		battleIntroAudio.play();
+		overworld.pause();
+		battle.currentTime = 0;
+		battle.play();
 	} else {
-		battleIntroAudio.pause();
-		overworldAudio.play();
+		battle.pause();
+		overworld.play();
 	}
 }
 

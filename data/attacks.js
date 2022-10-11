@@ -8,20 +8,24 @@ const attacks = {
 		name: "Falcon Punch",
 		damage: 25,
 		type: "Fire",
+		color: "red",
 	},
 	UltraBigBangKamehameha: {
-		name: "Ultra Big Bang Kamehameha ",
+		name: "Ultra Big Bang Kamehameha",
 		damage: 50,
 		type: "Magic",
+		color: "purple",
 	},
 	Limitless: {
 		name: "Limitless",
 		damage: 75,
 		type: "????",
+		color: "steelblue",
 	},
 	CrimsonMoon: {
 		name: "Crimson Moon",
-		damage: 99,
+		damage: 200,
 		type: "???????????",
+		color: "pink",
 	},
 };

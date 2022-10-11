@@ -66,11 +66,15 @@
 			#crimsonMoonAnimPic {
 				background-image: url("./img/crimsonMoonFinish.png");
 			}
+			#kamehamehaEndPic {
+				background-image: url("./img/kamehamehaOverlay.png");
+			}
 		</style>
 	</head>
 	<body>
 		<div id="overlayimg"></div>
 		<div id="container" style="display: inline-block; position: relative">
+			<canvas></canvas>
 			<div
 				id="overlappingDiv"
 				style="
@@ -85,126 +89,159 @@
 					z-index: 1;
 				"
 			></div>
-			<div
-				id="crimsonMoonAnimPic"
-				style="
-					position: absolute;
-					top: 0;
-					right: 0;
-					bottom: 0;
-					left: 0;
-					opacity: 0;
-					pointer-events: none;
-					z-index: 2;
-				"
-			></div>
-			<div
-				class="battleUI"
-				id="enemyHealth"
-				style="
-					background-color: white;
-					width: 200px;
-					position: absolute;
-					top: 50px;
-					left: 50px;
-					border: 5px solid black;
-					padding: 12px;
-				"
-			>
-				<h1 class="battleUI" style="font-size: 16px">Old man Marius</h1>
-				<div class="battleUI" style="position: relative">
-					<div
-						style="height: 5px; background-color: #ccc; margin-top: 10px"
-					></div>
-					<div
-						id="enemyHealthBar"
-						class="battleUI"
-						style="
-							height: 5px;
-							background-color: green;
-							position: absolute;
-							top: 0;
-							left: 0;
-							right: 0;
-						"
-					></div>
+			<div id="battleUiContainer">
+				<div
+					id="crimsonMoonAnimPic"
+					style="
+						position: absolute;
+						top: 0;
+						right: 0;
+						bottom: 0;
+						left: 0;
+						opacity: 0;
+						pointer-events: none;
+						z-index: 2;
+					"
+				></div>
+				<div
+					id="kamehamehaEndPic"
+					style="
+						position: absolute;
+						top: 0;
+						right: 0;
+						bottom: 0;
+						left: 0;
+						opacity: 0;
+						pointer-events: none;
+						z-index: 2;
+					"
+				></div>
+				<div
+					class="battleUI"
+					id="enemyHealth"
+					style="
+						background-color: white;
+						width: 200px;
+						position: absolute;
+						top: 50px;
+						left: 50px;
+						border: 5px solid black;
+						padding: 12px;
+					"
+				>
+					<h1 class="battleUI" style="font-size: 16px">Old man Marius</h1>
+					<div class="battleUI" style="position: relative">
+						<div
+							style="height: 5px; background-color: #ccc; margin-top: 10px"
+						></div>
+						<div
+							id="enemyHealthBar"
+							class="battleUI"
+							style="
+								height: 5px;
+								background-color: green;
+								position: absolute;
+								top: 0;
+								left: 0;
+								right: 0;
+							"
+						></div>
+					</div>
 				</div>
-			</div>
-			<div
-				class="battleUI"
-				id="playerHealth"
-				style="
-					background-color: white;
-					width: 200px;
-					position: absolute;
-					top: 330px;
-					right: 50px;
-					border: 5px solid black;
-					padding: 12px;
-				"
-			>
-				<h1 class="battleUI" style="font-size: 16px">Player</h1>
-				<div class="battleUI" style="position: relative">
-					<div
-						class="battleUI"
-						style="height: 5px; background-color: #ccc; margin-top: 10px"
-					></div>
-					<div
-						id="playerHealthBar"
-						class="battleUI"
-						style="
-							height: 5px;
-							background-color: green;
-							position: absolute;
-							top: 0;
-							left: 0;
-							right: 0;
-						"
-					></div>
+				<div
+					class="battleUI"
+					id="playerHealth"
+					style="
+						background-color: white;
+						width: 200px;
+						position: absolute;
+						top: 330px;
+						right: 50px;
+						border: 5px solid black;
+						padding: 12px;
+					"
+				>
+					<h1 class="battleUI" style="font-size: 16px">Player</h1>
+					<div class="battleUI" style="position: relative">
+						<div
+							class="battleUI"
+							style="height: 5px; background-color: #ccc; margin-top: 10px"
+						></div>
+						<div
+							id="playerHealthBar"
+							class="battleUI"
+							style="
+								height: 5px;
+								background-color: green;
+								position: absolute;
+								top: 0;
+								left: 0;
+								right: 0;
+							"
+						></div>
+					</div>
 				</div>
-			</div>
-			<canvas></canvas>
 
-			<div
-				class="battleUI"
-				id="attackContainer"
-				style="
-					background-color: white;
-					height: 140px;
-					position: absolute;
-					bottom: 0;
-					left: 0;
-					right: 0;
-					border-top: 5px black solid;
-					display: flex;
-				"
-			>
 				<div
 					class="battleUI"
-					id="attacks"
+					id="attackContainer"
 					style="
-						width: 66.66%;
-						display: grid;
-						grid-template-columns: repeat(2, 1fr);
-					"
-				>
-					<button>FalconPunch</button>
-					<button>UltraBigBangKamehameha</button>
-					<button>Limitless</button>
-					<button>CrimsonMoon</button>
-				</div>
-				<div
-					class="battleUI"
-					id="types"
-					style="
+						background-color: white;
+						height: 140px;
+						position: absolute;
+						bottom: 0;
+						left: 0;
+						right: 0;
+						border-top: 5px black solid;
 						display: flex;
-						align-items: center;
-						justify-content: center;
-						width: 33.33%;
-						border-left: 5px solid black;
 					"
 				>
-					<h1 class="battleUI" style="font-size: 16px">Attack Type</h1>
+					<div
+						id="dialogBox"
+						style="
+							padding: 12px;
+							background-color: white;
+							z-index: 2;
+							position: absolute;
+							top: 0;
+							right: 0;
+							left: 0;
+							bottom: 0;
+							display: none;
+							cursor: pointer;
+						"
+					>
+						testtesttesttest
+					</div>
+					<div
+						class="battleUI"
+						id="attacks"
+						style="
+							width: 66.66%;
+							display: grid;
+							grid-template-columns: repeat(2, 1fr);
+						"
+					>
+						<button>FalconPunch</button>
+						<button>UltraBigBangKamehameha</button>
+						<button>Limitless</button>
+						<button>CrimsonMoon</button>
+					</div>
+					<div
+						class="battleUI"
+						id="types"
+						style="
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							width: 33.33%;
+							border-left: 5px solid black;
+						"
+					>
+						<h1 id="attackTypeBox" class="battleUI" style="font-size: 16px">
+							Attack Type
+						</h1>
+					</div>
 				</div>
 			</div>
 		</div>
