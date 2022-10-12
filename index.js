@@ -813,9 +813,11 @@ function startGame() {
 	let gameStartToggle = false;
 	document.querySelector("#videoOverlay").addEventListener("click", (e) => {
 		gameStartToggle = true;
-		e.currentTarget.style.display = "none";
-		e.currentTarget.pause();
-		animate();
+		if (gameStartToggle === true) {
+			animate();
+			e.currentTarget.style.display = "none";
+			e.currentTarget.pause();
+		}
 	});
 }
 
