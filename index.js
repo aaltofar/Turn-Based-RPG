@@ -884,7 +884,6 @@ document.querySelector("#dialogBox").addEventListener("click", (e) => {
 	if (queue.length > 0) {
 		queue[0]();
 		queue.shift();
-		renderedSprites = [];
 	} else {
 		e.currentTarget.style.display = "none";
 		document.querySelector("battleUiContainer").style.display = "none";
