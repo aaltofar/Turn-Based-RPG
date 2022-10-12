@@ -487,6 +487,7 @@ const battleBackground = new Sprite({
 		y: 0,
 	},
 	image: battleBgImg,
+	opacity: 1,
 });
 
 const player = new Sprite({
@@ -589,134 +590,133 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 let battleToggle = {
 	initiated: false,
 };
-let fps = 60;
 function animate() {
-	setTimeout(function () {
-		animationId = window.requestAnimationFrame(animate);
-		background.draw();
-		boundaries.forEach((boundary) => {
-			boundary.draw();
-		});
-		interactiontiles.forEach((interaction) => {
-			interaction.draw();
-		});
-		if (battleToggle.initiated) {
-			window.cancelAnimationFrame(animationId);
-			return;
+	animationId = window.requestAnimationFrame(animate);
+	battleBackground.opacity = 0;
+	background.draw();
+	boundaries.forEach((boundary) => {
+		boundary.draw();
+	});
+	interactiontiles.forEach((interaction) => {
+		interaction.draw();
+	});
+	if (battleToggle.initiated) {
+		window.cancelAnimationFrame(animationId);
+		return;
+	}
+	player.draw();
+	foreground.draw();
+	handleAudio(battleIntroAudio, overworldAudio);
+	interactTileF();
+	let moving = true;
+	player.animate = false;
+	if (keys.w.pressed && lastKey === "w") {
+		player.animate = true;
+		player.image = player.sprites.up;
+		for (let i = 0; i < boundaries.length; i++) {
+			const boundary = boundaries[i];
+			if (
+				rectangularCollision({
+					rectangle1: player,
+					rectangle2: {
+						...boundary,
+						position: {
+							x: boundary.position.x,
+							y: boundary.position.y + 2,
+						},
+					},
+				})
+			) {
+				console.log("colliding");
+				moving = false;
+				break;
+			}
 		}
-		player.draw();
-		foreground.draw();
-		handleAudio(battleIntroAudio, overworldAudio);
-		interactTileF();
-		let moving = true;
-		player.animate = false;
-		if (keys.w.pressed && lastKey === "w") {
-			player.animate = true;
-			player.image = player.sprites.up;
-			for (let i = 0; i < boundaries.length; i++) {
-				const boundary = boundaries[i];
-				if (
-					rectangularCollision({
-						rectangle1: player,
-						rectangle2: {
-							...boundary,
-							position: {
-								x: boundary.position.x,
-								y: boundary.position.y + 1,
-							},
+		if (moving)
+			movables.forEach((movable) => {
+				movable.position.y += 2;
+			});
+	} else if (keys.a.pressed && lastKey === "a") {
+		player.animate = true;
+		player.image = player.sprites.left;
+		for (let i = 0; i < boundaries.length; i++) {
+			const boundary = boundaries[i];
+			if (
+				rectangularCollision({
+					rectangle1: player,
+					rectangle2: {
+						...boundary,
+						position: {
+							x: boundary.position.x + 2,
+							y: boundary.position.y,
 						},
-					})
-				) {
-					console.log("colliding");
-					moving = false;
-					break;
-				}
+					},
+				})
+			) {
+				console.log("colliding");
+				moving = false;
+				break;
 			}
-			if (moving)
-				movables.forEach((movable) => {
-					movable.position.y += 3;
-				});
-		} else if (keys.a.pressed && lastKey === "a") {
-			player.animate = true;
-			player.image = player.sprites.left;
-			for (let i = 0; i < boundaries.length; i++) {
-				const boundary = boundaries[i];
-				if (
-					rectangularCollision({
-						rectangle1: player,
-						rectangle2: {
-							...boundary,
-							position: {
-								x: boundary.position.x + 3,
-								y: boundary.position.y,
-							},
-						},
-					})
-				) {
-					console.log("colliding");
-					moving = false;
-					break;
-				}
-			}
-			if (moving)
-				movables.forEach((movable) => {
-					movable.position.x += 3;
-				});
-		} else if (keys.s.pressed && lastKey === "s") {
-			player.animate = true;
-			player.image = player.sprites.down;
-			for (let i = 0; i < boundaries.length; i++) {
-				const boundary = boundaries[i];
-				if (
-					rectangularCollision({
-						rectangle1: player,
-						rectangle2: {
-							...boundary,
-							position: {
-								x: boundary.position.x,
-								y: boundary.position.y - 3,
-							},
-						},
-					})
-				) {
-					console.log("colliding");
-					moving = false;
-					break;
-				}
-			}
-			if (moving)
-				movables.forEach((movable) => {
-					movable.position.y -= 3;
-				});
-		} else if (keys.d.pressed && lastKey === "d") {
-			player.animate = true;
-			player.image = player.sprites.right;
-			for (let i = 0; i < boundaries.length; i++) {
-				const boundary = boundaries[i];
-				if (
-					rectangularCollision({
-						rectangle1: player,
-						rectangle2: {
-							...boundary,
-							position: {
-								x: boundary.position.x - 3,
-								y: boundary.position.y,
-							},
-						},
-					})
-				) {
-					console.log("colliding");
-					moving = false;
-					break;
-				}
-			}
-			if (moving)
-				movables.forEach((movable) => {
-					movable.position.x -= 3;
-				});
 		}
-	}, 1000 / fps);
+		if (moving)
+			movables.forEach((movable) => {
+				movable.position.x += 2;
+			});
+	} else if (keys.s.pressed && lastKey === "s") {
+		player.animate = true;
+		player.image = player.sprites.down;
+		for (let i = 0; i < boundaries.length; i++) {
+			const boundary = boundaries[i];
+			if (
+				rectangularCollision({
+					rectangle1: player,
+					rectangle2: {
+						...boundary,
+						position: {
+							x: boundary.position.x,
+							y: boundary.position.y - 2,
+						},
+					},
+				})
+			) {
+				console.log("colliding");
+				moving = false;
+				break;
+			}
+		}
+		if (moving)
+			movables.forEach((movable) => {
+				movable.position.y -= 2;
+			});
+	} else if (keys.d.pressed && lastKey === "d") {
+		player.animate = true;
+		player.image = player.sprites.right;
+		for (let i = 0; i < boundaries.length; i++) {
+			const boundary = boundaries[i];
+			if (
+				rectangularCollision({
+					rectangle1: player,
+					rectangle2: {
+						...boundary,
+						position: {
+							x: boundary.position.x - 2,
+							y: boundary.position.y,
+						},
+					},
+				})
+			) {
+				console.log("colliding");
+				moving = false;
+				break;
+			}
+		}
+		if (moving)
+			movables.forEach((movable) => {
+				movable.position.x -= 2;
+			});
+	}
 }
+
 startGame();
 function interactTileF() {
 	let interactable = false;
@@ -766,7 +766,7 @@ function interactTileF() {
 
 function initBattle() {
 	queue = [];
-
+	battleBackground.opacity = 1;
 	document.querySelector("#battleUiContainer").style.display = "block";
 	document.querySelector("#enemyHealthBar").style.width = "100%";
 	document.querySelector("#playerHealthBar").style.width = "100%";
@@ -882,7 +882,12 @@ document.querySelector("#dialogBox").addEventListener("click", (e) => {
 	if (queue.length > 0) {
 		queue[0]();
 		queue.shift();
-	} else e.currentTarget.style.display = "none";
+		renderedSprites = [];
+	} else {
+		e.currentTarget.style.display = "none";
+		document.querySelector("battleUiContainer").style.display = "none";
+		renderedSprites = [];
+	}
 });
 
 function handleAudio(battle, overworld) {
