@@ -11,7 +11,7 @@ let queue = [];
 const battleIntroAudio = new Audio("./audio/BattleIntro.mp3");
 const overworldAudio = new Audio("./audio/overworldMusic.mp3");
 const falconPunchAudio = new Audio("./audio/falconPunchAudio.mp3");
-const LimitlessAudio = new Audio("./audio/overworldMusic.mp3");
+const LimitlessAudio = new Audio("./audio/limitlessAudio.mp3");
 const kamehamehaAudio = new Audio("./audio/kamehamehaAudio.mp3");
 const crimsonMoonAudio = new Audio("./audio/crimsonMoonAudio.mp3");
 
@@ -50,12 +50,6 @@ playerRightImage.src = "./img/playerRight.png";
 
 const pressFimg = new Image();
 pressFimg.src = "./img/pressFimg.png";
-
-// const enemyImage = new Image();
-// enemyImage.src = "./img/bigBadEnemy.png";
-
-// const playerBattleImage = new Image();
-// playerBattleImage.src = "./img/playerBattleImage.png";
 
 const battleBgImg = new Image();
 battleBgImg.src = "./img/battleBgOverworld.png";
@@ -307,33 +301,72 @@ class Sprite {
 				});
 				break;
 			case "Limitless":
+				const limitlessImg = new Image();
+				limitlessImg.src = "./img/limitlessImg.png";
+				const limitlessAttack = new Sprite({
+					position: {
+						x: 0,
+						y: 0,
+					},
+					image: limitlessImg,
+					frames: {
+						max: 11.98,
+						hold: 20,
+					},
+					animate: true,
+					opacity: 1,
+				});
+				const limitlessEndImg = new Image();
+				limitlessEndImg.src = "./img/limitlessEndImg.png";
+				const limitlessEndAttack = new Sprite({
+					position: {
+						x: 0,
+						y: 0,
+					},
+					image: limitlessEndImg,
+					frames: {
+						max: 11.98,
+						hold: 20,
+					},
+					animate: true,
+					opacity: 1,
+				});
+				//limitlessAudio.play();
 				tl.to(this.position, {
-					x: this.position.x - movementDistance,
-				})
-					.to(this.position, {
-						x: this.position.x + movementDistance * 2,
-						duration: 0.1,
-						onComplete: () => {
-							gsap.to(healthBar, {
-								width: recipient.health + "%",
-							});
-							gsap.to(recipient.position, {
-								x: recipient.position.x + 10,
-								yoyo: true,
-								repeat: 5,
-								duration: 0.08,
-							});
-							gsap.to(recipient, {
-								opacity: 0,
-								yoyo: true,
-								repeat: 5,
-								duration: 0.08,
-							});
-						},
-					})
-					.to(this.position, {
-						x: this.position.x,
-					});
+					y: this.position.y - 125,
+					duration: 0.1,
+					onComplete: () => {
+						this.opacity = 0;
+						enemy.opacity = 0;
+						renderedSprites.splice(1, 0, limitlessAttack);
+					},
+				});
+				tl.to(limitlessAttack, {
+					delay: 2.5,
+					onComplete: () => {
+						renderedSprites.splice(1, 1);
+						renderedSprites.splice(1, 0, limitlessEndAttack);
+
+						gsap.to(this.position, {
+							y: this.position.y + 125,
+						});
+					},
+				});
+				tl.to(limitlessAttack, {
+					opacity: 0,
+				});
+				tl.to(limitlessEndAttack, {
+					delay: 2,
+					opacity: 0,
+					onComplete: () => {
+						renderedSprites.splice(1, 1);
+						this.opacity = 1;
+						enemy.opacity = 1;
+						gsap.to(healthBar, {
+							width: recipient.health + "%",
+						});
+					},
+				});
 				break;
 			case "Crimson Moon":
 				const crimsonMoonImage = new Image();
@@ -556,137 +589,135 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 let battleToggle = {
 	initiated: false,
 };
-
+let fps = 60;
 function animate() {
-	animationId = window.requestAnimationFrame(animate);
-	background.draw();
-	boundaries.forEach((boundary) => {
-		boundary.draw();
-	});
-	interactiontiles.forEach((interaction) => {
-		interaction.draw();
-	});
-	if (battleToggle.initiated) {
-		window.cancelAnimationFrame(animationId);
-		return;
-	}
-	player.draw();
-	foreground.draw();
-	handleAudio(battleIntroAudio, overworldAudio);
-	interactTileF();
-	let moving = true;
-	player.animate = false;
-	//console.log("animationframe: " + animationId);
-
-	if (keys.w.pressed && lastKey === "w") {
-		player.animate = true;
-		player.image = player.sprites.up;
-		for (let i = 0; i < boundaries.length; i++) {
-			const boundary = boundaries[i];
-			if (
-				rectangularCollision({
-					rectangle1: player,
-					rectangle2: {
-						...boundary,
-						position: {
-							x: boundary.position.x,
-							y: boundary.position.y + 2,
-						},
-					},
-				})
-			) {
-				console.log("colliding");
-				moving = false;
-				break;
-			}
+	setTimeout(function () {
+		animationId = window.requestAnimationFrame(animate);
+		background.draw();
+		boundaries.forEach((boundary) => {
+			boundary.draw();
+		});
+		interactiontiles.forEach((interaction) => {
+			interaction.draw();
+		});
+		if (battleToggle.initiated) {
+			window.cancelAnimationFrame(animationId);
+			return;
 		}
-		if (moving)
-			movables.forEach((movable) => {
-				movable.position.y += 2;
-			});
-	} else if (keys.a.pressed && lastKey === "a") {
-		player.animate = true;
-		player.image = player.sprites.left;
-		for (let i = 0; i < boundaries.length; i++) {
-			const boundary = boundaries[i];
-			if (
-				rectangularCollision({
-					rectangle1: player,
-					rectangle2: {
-						...boundary,
-						position: {
-							x: boundary.position.x + 2,
-							y: boundary.position.y,
+		player.draw();
+		foreground.draw();
+		handleAudio(battleIntroAudio, overworldAudio);
+		interactTileF();
+		let moving = true;
+		player.animate = false;
+		if (keys.w.pressed && lastKey === "w") {
+			player.animate = true;
+			player.image = player.sprites.up;
+			for (let i = 0; i < boundaries.length; i++) {
+				const boundary = boundaries[i];
+				if (
+					rectangularCollision({
+						rectangle1: player,
+						rectangle2: {
+							...boundary,
+							position: {
+								x: boundary.position.x,
+								y: boundary.position.y + 1,
+							},
 						},
-					},
-				})
-			) {
-				console.log("colliding");
-				moving = false;
-				break;
+					})
+				) {
+					console.log("colliding");
+					moving = false;
+					break;
+				}
 			}
-		}
-		if (moving)
-			movables.forEach((movable) => {
-				movable.position.x += 2;
-			});
-	} else if (keys.s.pressed && lastKey === "s") {
-		player.animate = true;
-		player.image = player.sprites.down;
-		for (let i = 0; i < boundaries.length; i++) {
-			const boundary = boundaries[i];
-			if (
-				rectangularCollision({
-					rectangle1: player,
-					rectangle2: {
-						...boundary,
-						position: {
-							x: boundary.position.x,
-							y: boundary.position.y - 2,
+			if (moving)
+				movables.forEach((movable) => {
+					movable.position.y += 3;
+				});
+		} else if (keys.a.pressed && lastKey === "a") {
+			player.animate = true;
+			player.image = player.sprites.left;
+			for (let i = 0; i < boundaries.length; i++) {
+				const boundary = boundaries[i];
+				if (
+					rectangularCollision({
+						rectangle1: player,
+						rectangle2: {
+							...boundary,
+							position: {
+								x: boundary.position.x + 3,
+								y: boundary.position.y,
+							},
 						},
-					},
-				})
-			) {
-				console.log("colliding");
-				moving = false;
-				break;
+					})
+				) {
+					console.log("colliding");
+					moving = false;
+					break;
+				}
 			}
-		}
-		if (moving)
-			movables.forEach((movable) => {
-				movable.position.y -= 2;
-			});
-	} else if (keys.d.pressed && lastKey === "d") {
-		player.animate = true;
-		player.image = player.sprites.right;
-		for (let i = 0; i < boundaries.length; i++) {
-			const boundary = boundaries[i];
-			if (
-				rectangularCollision({
-					rectangle1: player,
-					rectangle2: {
-						...boundary,
-						position: {
-							x: boundary.position.x - 2,
-							y: boundary.position.y,
+			if (moving)
+				movables.forEach((movable) => {
+					movable.position.x += 3;
+				});
+		} else if (keys.s.pressed && lastKey === "s") {
+			player.animate = true;
+			player.image = player.sprites.down;
+			for (let i = 0; i < boundaries.length; i++) {
+				const boundary = boundaries[i];
+				if (
+					rectangularCollision({
+						rectangle1: player,
+						rectangle2: {
+							...boundary,
+							position: {
+								x: boundary.position.x,
+								y: boundary.position.y - 3,
+							},
 						},
-					},
-				})
-			) {
-				console.log("colliding");
-				moving = false;
-				break;
+					})
+				) {
+					console.log("colliding");
+					moving = false;
+					break;
+				}
 			}
+			if (moving)
+				movables.forEach((movable) => {
+					movable.position.y -= 3;
+				});
+		} else if (keys.d.pressed && lastKey === "d") {
+			player.animate = true;
+			player.image = player.sprites.right;
+			for (let i = 0; i < boundaries.length; i++) {
+				const boundary = boundaries[i];
+				if (
+					rectangularCollision({
+						rectangle1: player,
+						rectangle2: {
+							...boundary,
+							position: {
+								x: boundary.position.x - 3,
+								y: boundary.position.y,
+							},
+						},
+					})
+				) {
+					console.log("colliding");
+					moving = false;
+					break;
+				}
+			}
+			if (moving)
+				movables.forEach((movable) => {
+					movable.position.x -= 3;
+				});
 		}
-		if (moving)
-			movables.forEach((movable) => {
-				movable.position.x -= 2;
-			});
-	}
+	}, 1000 / fps);
 }
-
-animate();
-//animateBattle();
+startGame();
 function interactTileF() {
 	let interactable = false;
 	for (let i = 0; i < interactiontiles.length; i++) {
@@ -775,6 +806,17 @@ function initBattle() {
 		opacity: 1,
 	});
 	renderedSprites = [enemy, playerBattle];
+	animateBattle();
+}
+
+function startGame() {
+	let gameStartToggle = false;
+	document.querySelector("#videoOverlay").addEventListener("click", (e) => {
+		gameStartToggle = true;
+		e.currentTarget.style.display = "none";
+		e.currentTarget.pause();
+		animate();
+	});
 }
 
 function animateBattle() {

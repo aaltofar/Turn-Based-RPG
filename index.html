@@ -69,11 +69,22 @@
 			#kamehamehaEndPic {
 				background-image: url("./img/kamehamehaOverlay.png");
 			}
+			video {
+				position: absolute;
+			}
+			#videoOverlay {
+				opacity: 1;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="overlayimg"></div>
 		<div id="container" style="display: inline-block; position: relative">
+			<video
+				id="videoOverlay"
+				autoplay="true"
+				src="./img/gameIntroAnim.m4v"
+			></video>
 			<canvas></canvas>
 			<div
 				id="overlappingDiv"
