@@ -475,7 +475,7 @@ class Sprite {
 		}
 	}
 }
-
+//du kan trykke F her
 const battlePopUp = new Sprite({
 	position: {
 		x: offset.x + 375,
@@ -510,7 +510,7 @@ const player = new Sprite({
 		right: playerRightImage,
 	},
 });
-
+//fienden i battle
 let enemy = new Sprite({
 	position: {
 		x: 700,
@@ -528,7 +528,7 @@ let enemy = new Sprite({
 	isEnemy: true,
 	opacity: 1,
 });
-
+//spillersprite i battle
 let playerBattle = new Sprite({
 	position: {
 		x: 275,
@@ -545,7 +545,7 @@ let playerBattle = new Sprite({
 	animate: true,
 	opacity: 1,
 });
-//let renderedSprites = [enemy, playerBattle];
+
 const background = new Sprite({
 	position: {
 		x: offset.x,
@@ -813,7 +813,7 @@ function initBattle() {
 	renderedSprites = [enemy, playerBattle];
 	animateBattle();
 }
-
+//lar deg trykke på skjermen i introsekvensen for å komme videre til selve spillet
 function startGame() {
 	let gameStartToggle = false;
 	document.querySelector("#videoOverlay").addEventListener("click", (e) => {
@@ -825,7 +825,7 @@ function startGame() {
 		}
 	});
 }
-
+//animerer kampsekvensen
 function animateBattle() {
 	battleAnimationId = window.requestAnimationFrame(animateBattle);
 	//window.requestAnimationFrame(animateBattle);
@@ -839,7 +839,7 @@ function animateBattle() {
 		sprite.draw();
 	});
 }
-
+//lar deg trykke på angrepsknappene
 document.querySelectorAll("button").forEach((button) => {
 	button.addEventListener("click", (e) => {
 		const selectedAttack = attacks[e.currentTarget.innerHTML];
