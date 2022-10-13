@@ -1,11 +1,12 @@
-//setter høyden og bredden til spillviewet
+// #region [ defaultFarge ] canvasSetup //
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
 canvas.width = 1024;
 canvas.height = 576;
-
+// #endregion //
 document.querySelector("#battleUiContainer").style.display = "none";
-//hjelpevariabler for diverse lyder og spillogikk
+
+// #region [ variabler ]  Hjelpevariabler og variabler for diverse spillogikk //
 let battleAnimationId;
 let animationId;
 let queue = [];
@@ -21,6 +22,7 @@ const offset = {
 	x: 0,
 	y: -50,
 };
+// #endregion //
 //lager kollisjonsblokker
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i += 70) {
@@ -31,7 +33,7 @@ const interactionsMap = [];
 for (let i = 0; i < interactions.length; i += 70) {
 	interactionsMap.push(interactions.slice(i, 70 + i));
 }
-//variabler for bildekilder brukt i sprites
+// #region [ kilder ] hjelpevariabler for bildekilder
 const image = new Image();
 image.src = "./img/overworld.png";
 
@@ -55,7 +57,7 @@ pressFimg.src = "./img/pressFimg.png";
 
 const battleBgImg = new Image();
 battleBgImg.src = "./img/battleBgOverworld.png";
-
+// #endregion
 class Boundary {
 	static width = 80;
 	static height = 80;
