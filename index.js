@@ -1,10 +1,11 @@
+//setter høyden og bredden til spillviewet
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
 canvas.width = 1024;
 canvas.height = 576;
 
 document.querySelector("#battleUiContainer").style.display = "none";
-
+//hjelpevariabler for diverse lyder og spillogikk
 let battleAnimationId;
 let animationId;
 let queue = [];
@@ -14,22 +15,23 @@ const falconPunchAudio = new Audio("./audio/falconPunchAudio.mp3");
 const LimitlessAudio = new Audio("./audio/limitlessAudio.mp3");
 const kamehamehaAudio = new Audio("./audio/kamehamehaAudio.mp3");
 const crimsonMoonAudio = new Audio("./audio/crimsonMoonAudio.mp3");
-
 const interactiontiles = [];
 const boundaries = [];
 const offset = {
 	x: 0,
 	y: -50,
 };
+//lager kollisjonsblokker
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i += 70) {
 	collisionsMap.push(collisions.slice(i, 70 + i));
 }
+//lager interaksjonsblokker
 const interactionsMap = [];
 for (let i = 0; i < interactions.length; i += 70) {
 	interactionsMap.push(interactions.slice(i, 70 + i));
 }
-
+//variabler for bildekilder brukt i sprites
 const image = new Image();
 image.src = "./img/overworld.png";
 
@@ -111,7 +113,7 @@ interactionsMap.forEach((row, i) => {
 			);
 	});
 });
-
+//denne tegner og holder egenskapene til forskjellige sprites i spillet, håndterer også angrepsanimasjoner
 class Sprite {
 	constructor({
 		position,
@@ -877,7 +879,7 @@ document.querySelectorAll("button").forEach((button) => {
 			});
 		});
 	});
-
+	//mouseover for å se typen til angrepet
 	button.addEventListener("mouseenter", (e) => {
 		const selectedAttack = attacks[e.currentTarget.innerHTML];
 		document.querySelector("#attackTypeBox").innerHTML = selectedAttack.type;
@@ -894,7 +896,7 @@ document.querySelector("#dialogBox").addEventListener("click", (e) => {
 		document.querySelector("battleUiContainer").style.display = "none";
 	}
 });
-
+//håndterer musikken i overworld og battle
 function handleAudio(battle, overworld) {
 	if (battleToggle.initiated === true) {
 		overworld.pause();
