@@ -149,6 +149,9 @@ class Sprite {
 		});
 		gsap.to(this, {
 			opacity: 0,
+			onComplete: () => {
+				renderedSprites = [];
+			},
 		});
 	}
 	draw() {
@@ -542,7 +545,7 @@ let playerBattle = new Sprite({
 	animate: true,
 	opacity: 1,
 });
-let renderedSprites = [enemy, playerBattle];
+//let renderedSprites = [enemy, playerBattle];
 const background = new Sprite({
 	position: {
 		x: offset.x,
@@ -576,7 +579,7 @@ const keys = {
 		pressed: false,
 	},
 };
-
+//alt som skal bevege seg når man trykker WASD.
 const movables = [background, ...boundaries, ...interactiontiles, foreground];
 function rectangularCollision({ rectangle1, rectangle2 }) {
 	return (
@@ -590,6 +593,7 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 let battleToggle = {
 	initiated: false,
 };
+//animasjonsfunksjonen til overworld, denne lar deg gå rundt på kartet
 function animate() {
 	animationId = window.requestAnimationFrame(animate);
 	battleBackground.opacity = 0;
@@ -718,6 +722,7 @@ function animate() {
 }
 
 startGame();
+//håndterer kampstart og F tasten
 function interactTileF() {
 	let interactable = false;
 	for (let i = 0; i < interactiontiles.length; i++) {
@@ -763,7 +768,7 @@ function interactTileF() {
 		}
 	}
 }
-
+//initierer kamp, kalles hver gang for å resette HP bars og UI
 function initBattle() {
 	queue = [];
 	battleBackground.opacity = 1;
@@ -887,7 +892,6 @@ document.querySelector("#dialogBox").addEventListener("click", (e) => {
 	} else {
 		e.currentTarget.style.display = "none";
 		document.querySelector("battleUiContainer").style.display = "none";
-		renderedSprites = [];
 	}
 });
 
